@@ -3,6 +3,7 @@
 # Spectrum Predict with Color-Card Optical Encoding (Low-cost Camera Spectrometer)
 
 > 使用低成本相机拍摄“溶液 + 多色块色卡编码”的照片，仅提取色卡区域 RGB 信号，重建溶液的可见光谱（spectrum），实现“相机 + 色卡 + 算法”式微型光谱仪。
+<img width="2816" height="1536" alt="1766387941081-019b44ec-59e7-7409-8164-0f8ff169e974" src="https://github.com/user-attachments/assets/9de61fb9-d996-4739-8bb3-7584a486dcbe" />
 
 ---
 
