@@ -264,5 +264,159 @@
     "sha256": "d54741257b273a7eedc43bfd2548d0c77aba476da33434b170b3bc12635afae1",
     "experiment_date": null,
     "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_25.9.18/calibrate.py",
+    "archive_path": "historical/05_extraction24/calibrate.py",
+    "sha256": "78be9fd61e14e0c18a24988e5eff8f9c1dad331a08330335d2f21e82434e9749",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_25.9.18/config.py",
+    "archive_path": "historical/05_extraction24/config.py",
+    "sha256": "8f0f422fc1108429d44909126da07c3d97230ec51be629b0c265e8f9cedd5b2d",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_25.9.18/detect.py",
+    "archive_path": "historical/05_extraction24/detect.py",
+    "sha256": "5f9e2791c6c02402997a2f05d045b2605301bcf575558faf9d345bdecab8cc70",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_25.9.18/extract.py",
+    "archive_path": "historical/05_extraction24/extract.py",
+    "sha256": "90ce16dde610e3026c2db9609d9dcb341b31a43d064a47506430791578596fa2",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_25.9.18/features.py",
+    "archive_path": "historical/05_extraction24/features.py",
+    "sha256": "bcc94d3756c888ea483ab1a6ef380fdbafd53a10070d83fa30368de5b3f1bc4d",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_25.9.18/geometry.py",
+    "archive_path": "historical/05_extraction24/geometry.py",
+    "sha256": "ba29eb5ab08b971f1c8330b8d04b01997416b82af6a6d80e97c8d3f36d492cd7",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_25.9.18/io_utils.py",
+    "archive_path": "historical/05_extraction24/io_utils.py",
+    "sha256": "9f9b5fb925bcdff8e78789fe08ce0a673bf2fc83e6998b981bdf24bd5e88f1b5",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_25.9.18/manual_select.py",
+    "archive_path": "historical/05_extraction24/manual_select.py",
+    "sha256": "1f15d5677440ade77e87a7994952f610f283d23331f95de5874df9ff92ce1597",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_25.9.18/pipeline.py",
+    "archive_path": "historical/05_extraction24/pipeline.py",
+    "sha256": "726b37546060576083b4642451c7d4173d59b15cf492ed1f86343c6f69c61c7a",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_25.9.18/ui_main.py",
+    "archive_path": "historical/05_extraction24/ui_main.py",
+    "sha256": "43d90c297559a35a958d2894f294c1244832455ef1fd41db421cf015f1ce0d6f",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_25.9.18/visualize.py",
+    "archive_path": "historical/05_extraction24/visualize.py",
+    "sha256": "6ae2d541fbef00798c5f046aa533ff4a277d37a67fd39fdda08bf5e13f63d275",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_26.5.29/calibrate.py",
+    "archive_path": "historical/05_extraction72/calibrate.py",
+    "sha256": "78be9fd61e14e0c18a24988e5eff8f9c1dad331a08330335d2f21e82434e9749",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_26.5.29/config.py",
+    "archive_path": "historical/05_extraction72/config.py",
+    "sha256": "f17ed416c2df05231fbf32190d137cc5ce0c69da1a669cbfe3bd32a143dd6dd3",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_26.5.29/detect.py",
+    "archive_path": "historical/05_extraction72/detect.py",
+    "sha256": "e5066c9ee2f3ec77daa17a1beb2072474746bcd851a75831d29294c527129ede",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_26.5.29/extract.py",
+    "archive_path": "historical/05_extraction72/extract.py",
+    "sha256": "4ba1a34aee6d2481f6fc7ef33eafa1f17269258d1cf8d4df24ff689b455695f2",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_26.5.29/features.py",
+    "archive_path": "historical/05_extraction72/features.py",
+    "sha256": "bcc94d3756c888ea483ab1a6ef380fdbafd53a10070d83fa30368de5b3f1bc4d",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_26.5.29/geometry.py",
+    "archive_path": "historical/05_extraction72/geometry.py",
+    "sha256": "ba29eb5ab08b971f1c8330b8d04b01997416b82af6a6d80e97c8d3f36d492cd7",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_26.5.29/io_utils.py",
+    "archive_path": "historical/05_extraction72/io_utils.py",
+    "sha256": "c221d18297288b6794b6fb8119e53d06fdd6b76ee36260c59bab804e9d15ccbe",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_26.5.29/manual_select.py",
+    "archive_path": "historical/05_extraction72/manual_select.py",
+    "sha256": "fa9de48a797c2927d1469975ea0f2fc91b1c802087aa47aed277c79328416b41",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_26.5.29/pipeline.py",
+    "archive_path": "historical/05_extraction72/pipeline.py",
+    "sha256": "e67522e6580efb288c3348ccbaebf6833ad8dcc6e24b0da572f90784b2155fb3",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_26.5.29/ui_main.py",
+    "archive_path": "historical/05_extraction72/ui_main.py",
+    "sha256": "b656ba88cea0072f8d4d05b10510d3b2f4c164e610dd1e35f76e82cb50c04ec9",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "card_detection_26.5.29/visualize.py",
+    "archive_path": "historical/05_extraction72/visualize.py",
+    "sha256": "60c60925321d87ff92fb857ceee9c6593f72f05f065967ab305e833a584f39b9",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
   }
 ]

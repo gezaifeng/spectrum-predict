@@ -12,6 +12,7 @@
 | stage-02-res | feat: adopt sampled residual regression | 保留采样序列平均的早期Res模型。 |
 | stage-03-physics | feat: add weighted DC and TV training | 稳健采样、灰平衡、单头残差与峰值/DC/TV训练。 |
 | stage-04-dual24 | feat: split the spectrum into two heads | DCT基底系数加逐波长残差；24色块版本。 |
+| stage-05-extraction72 | feat: retain the 72-patch extraction pipeline | 前端6×12、九点与重复采样；主线暂保留双头24配置。 |
 
 ## 关键事实与边界
 

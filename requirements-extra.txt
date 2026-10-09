@@ -1,0 +1,7 @@
+-r requirements.txt
+matplotlib
+pandas
+Pillow
+opencv-python
+rawpy
+PyQt5
