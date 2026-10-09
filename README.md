@@ -13,6 +13,7 @@ Python 3.11；整理时在Windows、PyTorch 2.7.0 CPU上验证。
 python -m venv .venv
 python -m pip install -r requirements.txt
 python -m unittest discover -s tests -v
+python scripts/synthetic_smoke.py
 python train.py --train-dir /path/to/train --val-dir /path/to/val --output runs/example
 python predict.py --checkpoint runs/example/best.pt --input /path/to/rgb_sample.npy --output runs/example/prediction.npy
 ```
@@ -26,7 +27,7 @@ ratio或log_ratio必须使用feature_scale=1的显式配置，不能套用RGB的
 
 主线master逐阶段推进至残差双头；阶段标签见docs/HISTORY.md。CNN和U-Net比较路线保留feature分支。
 `archive/original-main-2026-10-09`保留替换前的GitHub main和全部历史。
-其他分支及最终配置将在整理完成后列入docs/BRANCHES.md。
+全部分支见[分支指南](docs/BRANCHES.md)，验证结果见[验证报告](docs/VALIDATION.md)。
 
 ```bash
 git log --graph --oneline --decorate --all
@@ -40,3 +41,5 @@ git checkout master
 合成数据测试不证明论文指标或真实泛化。重复采样、噪声扩增和不同光源照片应先按物理溶液／拍摄组划分再扩增；同一溶液不得同时进入训练与独立测试。
 本包没有数据集及权重，不能据代码声明93%、96%或99.5%准确率复现成功。
 原始对话只在本地local_history中保存，默认不加入Git，也不发布到公开仓库。
+
+configs/中的历史配置须在对应阶段或模型分支使用；切换配置不会自动切换model.py中的网络类。

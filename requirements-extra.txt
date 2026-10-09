@@ -4,4 +4,3 @@ pandas
 Pillow
 opencv-python
 rawpy
-PyQt5
