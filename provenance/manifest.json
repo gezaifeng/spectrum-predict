@@ -418,5 +418,47 @@
     "sha256": "60c60925321d87ff92fb857ceee9c6593f72f05f065967ab305e833a584f39b9",
     "experiment_date": null,
     "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "token-spectral/dataset_token_spectral.py",
+    "archive_path": "historical/token-spectral/dataset_token_spectral.py",
+    "sha256": "e4307d8d2bfd427e7e0e9d916c07ce5dd38f87241620fef7775e11303ef72fb0",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "token-spectral/model_token_spectral_net.py",
+    "archive_path": "historical/token-spectral/model_token_spectral_net.py",
+    "sha256": "9009896b41f30c239e985e9086729144af31297498b7cc6806415496e8c6411b",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "token-spectral/physics_spectral_loss.py",
+    "archive_path": "historical/token-spectral/physics_spectral_loss.py",
+    "sha256": "689ab7445eecacd219d25f948b478fc0c44b1fee6b6a00944e8d20062f424167",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "token-spectral/predict_token_spectral.py",
+    "archive_path": "historical/token-spectral/predict_token_spectral.py",
+    "sha256": "7893c1efc53a0477b60e0d31f2c7a28a57f6c97e4a65c783eeaa3f35f7f999b8",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "token-spectral/train_token_spectral.py",
+    "archive_path": "historical/token-spectral/train_token_spectral.py",
+    "sha256": "ab13f8beb7e76696a3c80cb0937feb5516acececf23ddc25c00097e8788c2e8c",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "token-spectral/WeightedMSEloss.py",
+    "archive_path": "historical/token-spectral/WeightedMSEloss.py",
+    "sha256": "291db88ff8d6070e37c6da0ceb69a0e66e2ef250cfd5c8d6c40c4bd97a66785d",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
   }
 ]
