@@ -9,6 +9,7 @@
 | 标签 | 开发阶段 | 原始文件／重建说明 |
 | --- | --- | --- |
 | stage-01-cnn | feat: recover the CNN spectrum baseline | 找回CNN+Transformer基线；并非纯CNN首次版本。 |
+| experiment-unet24 | feat: retain the U-Net comparison route | U-Net来自后期对照代码；分支位置表示比较路线。 |
 
 ## 关键事实与边界
 

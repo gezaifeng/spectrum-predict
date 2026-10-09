@@ -1,7 +1,9 @@
 {
-  "name": "cnn24",
-  "model_class": "SpectralCNNTransformer",
-  "model_kwargs": {},
+  "name": "unet24",
+  "model_class": "MicroUNetSpectral",
+  "model_kwargs": {
+    "out_dim": 76
+  },
   "feature_shape": [
     4,
     6,
@@ -9,9 +11,9 @@
     3
   ],
   "layout": "hwkc",
-  "aggregation": "sequence",
+  "aggregation": "trimmed_mean",
   "feature_scale": 255.0,
-  "gray_balance": false,
+  "gray_balance": true,
   "output_dim": 76,
   "wavelengths_nm": [
     380,
