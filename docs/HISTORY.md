@@ -9,6 +9,7 @@
 | 标签 | 开发阶段 | 原始文件／重建说明 |
 | --- | --- | --- |
 | stage-01-cnn | feat: recover the CNN spectrum baseline | 找回CNN+Transformer基线；并非纯CNN首次版本。 |
+| stage-02-res | feat: adopt sampled residual regression | 保留采样序列平均的早期Res模型。 |
 
 ## 关键事实与边界
 

@@ -47,5 +47,54 @@
     "sha256": "291db88ff8d6070e37c6da0ceb69a0e66e2ef250cfd5c8d6c40c4bd97a66785d",
     "experiment_date": null,
     "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "Res spectrum predict/dataset.py",
+    "archive_path": "historical/02_sampled_res/dataset.py",
+    "sha256": "8ba3ad081cea9dd45d346d433807b98187639133c44eca774d5ff2bd1ef4b2a8",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "Res spectrum predict/model.py",
+    "archive_path": "historical/02_sampled_res/model.py",
+    "sha256": "0163ce34c178b551edfd92f9da0f701701fc8dea9162682720deb232b21f7c6a",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "Res spectrum predict/predict.py",
+    "archive_path": "historical/02_sampled_res/predict.py",
+    "sha256": "3c4cac5f7edf866efd6abd4d6655ac5a55b95c1542c3c6f2fc8c5396defc0c00",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "Res spectrum predict/SpectralReconstructionLoss.py",
+    "archive_path": "historical/02_sampled_res/SpectralReconstructionLoss.py",
+    "sha256": "d54741257b273a7eedc43bfd2548d0c77aba476da33434b170b3bc12635afae1",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "Res spectrum predict/train-dynreweight-nobaseline.py",
+    "archive_path": "historical/02_sampled_res/train-dynreweight-nobaseline.py",
+    "sha256": "4225c8a9e286a9089acdbfd51922f68fa09b2c2051062d6e4f4431ba0bff45d9",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "Res spectrum predict/train.py",
+    "archive_path": "historical/02_sampled_res/train.py",
+    "sha256": "586a6b5e353d8fab77a02984b0dd0f3707390512f942137491856026f252770b",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "Res spectrum predict/WeightedMSEloss.py",
+    "archive_path": "historical/02_sampled_res/WeightedMSEloss.py",
+    "sha256": "291db88ff8d6070e37c6da0ceb69a0e66e2ef250cfd5c8d6c40c4bd97a66785d",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
   }
 ]

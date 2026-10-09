@@ -1,50 +1,77 @@
-
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+class ResBlock(nn.Module):
+    """带 BatchNorm 和 Dropout 的残差块"""
+    def __init__(self, in_channels, out_channels):
+        super(ResBlock, self).__init__()
+        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1)
+        self.bn1 = nn.BatchNorm2d(out_channels)
+        self.dropout1 = nn.Dropout2d(0.2)
 
-# ========================= 模型定义 =========================
-class SpectralCNNTransformer(nn.Module):
-    def __init__(self):
-        super(SpectralCNNTransformer, self).__init__()
+        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1)
+        self.bn2 = nn.BatchNorm2d(out_channels)
+        self.dropout2 = nn.Dropout2d(0.2)
 
-        # CNN 处理 (3, 100, 4, 6) → (64, 100, 2, 3)
-        self.conv1 = nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)
-        self.pool = nn.MaxPool2d(2, 2)  # 池化 (4x6 → 2x3)
-
-        # Transformer 处理 100 维度信息
-        self.transformer_encoder = nn.TransformerEncoder(
-            nn.TransformerEncoderLayer(d_model=64 * 2 * 3, nhead=4, dim_feedforward=256, batch_first=True),
-            num_layers=2
-        )
-
-        # 全连接层
-
-        self.fc1 = nn.Linear(64 * 2 * 3, 128)
-        self.fc2 = nn.Linear(128, 76)
-
+        # 匹配维度的投影
+        self.shortcut = nn.Sequential()
+        if in_channels != out_channels:
+            self.shortcut = nn.Conv2d(in_channels, out_channels, kernel_size=1)
 
     def forward(self, x):
-        # CNN 处理空间特征
-        b, c, seq, h, w = x.shape  # (batch, 3, 100, 4, 6)
-        x = x.permute(0, 2, 1, 3, 4).reshape(b * seq, c, h, w)  # 合并批次和序列 (batch*100, 3, 4, 6)
+        identity = self.shortcut(x)
+        out = F.relu(self.bn1(self.conv1(x)))
+        out = self.dropout1(out)
+        out = self.bn2(self.conv2(out))
+        out = self.dropout2(out)
+        out += identity
+        return F.relu(out)
 
-        x = F.relu(self.conv1(x))
-        x = self.pool(F.relu(self.conv2(x)))  # 变成 (batch*100, 64, 2, 3)
 
-        # 变换形状以适应 Transformer
-        x = x.view(b, seq, -1)  # (batch, 100, 64*2*3)
-        x = self.transformer_encoder(x)  # Transformer 处理
+class ResCNN(nn.Module):
+    def __init__(self):
+        super(ResCNN, self).__init__()
 
-        # 取 Transformer 最后一个时间步的信息
-        x = x[:, -1, :]
+        # 初始通道：3 → 32
+        self.block1 = ResBlock(3, 32)
+        self.pool1 = nn.MaxPool2d(2, 2)  # (4,6) → (2,3)
 
-        # 全连接
-        x = F.relu(self.fc1(x))
-        x = self.fc2(x)
+        # 32 → 64
+        self.block2 = ResBlock(32, 64)
+        self.pool2 = nn.MaxPool2d(2, 2)  # (2,3) → (1,1)
 
+        # 64 → 128
+        self.block3 = ResBlock(64, 128)  # (1,1)
+
+        self.flatten_dim = 128 * 1 * 1  # 输出特征尺寸
+
+        # 全连接层
+        self.fc1 = nn.Linear(self.flatten_dim, 256)
+        self.bn_fc1 = nn.BatchNorm1d(256)
+        self.dropout_fc1 = nn.Dropout(0.3)
+
+        self.fc2 = nn.Linear(256, 128)
+        self.bn_fc2 = nn.BatchNorm1d(128)
+        self.dropout_fc2 = nn.Dropout(0.3)
+
+        self.fc3 = nn.Linear(128, 76)
+
+    def forward(self, x):
+        b, c, seq, h, w = x.shape
+        x = x.permute(0, 2, 1, 3, 4).reshape(b * seq, c, h, w)
+
+        x = self.pool1(self.block1(x))  # → (b*seq, 32, 2, 3)
+        x = self.pool2(self.block2(x))  # → (b*seq, 64, 1, 1)
+        x = self.block3(x)              # → (b*seq, 128, 1, 1)
+
+        x = x.view(b, seq, -1)          # → (b, seq, 128)
+
+        # 平均多个空间点
+        x = x.mean(dim=1)               # → (b, 128)
+
+        x = F.relu(self.bn_fc1(self.fc1(x)))
+        x = F.relu(self.bn_fc2(self.fc2(x)))
+        x = self.fc3(x)                 # → (b, 76)
 
         return x
-
-

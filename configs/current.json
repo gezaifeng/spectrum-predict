@@ -1,6 +1,6 @@
 {
-  "name": "cnn24",
-  "model_class": "SpectralCNNTransformer",
+  "name": "res_sampled24",
+  "model_class": "ResCNN",
   "model_kwargs": {},
   "feature_shape": [
     4,
