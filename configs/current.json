@@ -1,16 +1,8 @@
 {
-  "name": "dual72",
-  "model_class": "DualHeadSpectralNet",
+  "name": "single72_shape",
+  "model_class": "ResCNN",
   "model_kwargs": {
-    "n_wave": 190,
-    "token_grid": [
-      6,
-      12
-    ],
-    "base_ch": 64,
-    "n_blocks": 4,
-    "k_basis": 12,
-    "out_activation": "softplus"
+    "out_dim": 190
   },
   "feature_shape": [
     3,
@@ -216,8 +208,7 @@
     758
   ],
   "loss": {
-    "dc": 0.1,
-    "tv": 0.02,
-    "coef": 0.0001
+    "dc": 0.05,
+    "diff": 0.3
   }
 }

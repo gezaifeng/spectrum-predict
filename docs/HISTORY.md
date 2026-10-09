@@ -14,6 +14,7 @@
 | stage-04-dual24 | feat: split the spectrum into two heads | DCT基底系数加逐波长残差；24色块版本。 |
 | stage-05-extraction72 | feat: retain the 72-patch extraction pipeline | 前端6×12、九点与重复采样；主线暂保留双头24配置。 |
 | stage-06-dual72 | feat: integrate 72 patches with dual heads | 本次工程整合：既有双头参数化到72色块、190点；未声称真实实验已验证。 |
+| experiment-single72 | feat: retain single-head shape regression | 单头对照保留，并将差分对齐独立于TV平滑。完整SAM/top-k历史代码存于快照。 |
 
 ## 关键事实与边界
 

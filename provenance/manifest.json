@@ -418,5 +418,68 @@
     "sha256": "60c60925321d87ff92fb857ceee9c6593f72f05f065967ab305e833a584f39b9",
     "experiment_date": null,
     "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "RESCNN_4.12/dataset.py",
+    "archive_path": "historical/single_head_shape_loss/dataset.py",
+    "sha256": "a579bbf5c47bd7827563e172b8215a80d544718f824efd1005686907551a72d6",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "RESCNN_4.12/evaluate_val_spectrum_errors.py",
+    "archive_path": "historical/single_head_shape_loss/evaluate_val_spectrum_errors.py",
+    "sha256": "23005330038fd5432975ce9e6a30b52b25e9f41d1ec605e80e69cfc7fa898e7b",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "RESCNN_4.12/filter_low_quality_npy.py",
+    "archive_path": "historical/single_head_shape_loss/filter_low_quality_npy.py",
+    "sha256": "f1b4cab9b56552f60c492f62ec95495c9dea1157d4bfd32259f5f0e77cc82fab",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "RESCNN_4.12/grad_block_importance_rescnn.py",
+    "archive_path": "historical/single_head_shape_loss/grad_block_importance_rescnn.py",
+    "sha256": "10ab48fc66e84f97f5c24626993f326307d67651df2309fed896e12458af9803",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "RESCNN_4.12/model.py",
+    "archive_path": "historical/single_head_shape_loss/model.py",
+    "sha256": "880c82cd744687b2362a636e08715255d3fb80d73b0447b7f109cc03b1f95c71",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "RESCNN_4.12/predict.py",
+    "archive_path": "historical/single_head_shape_loss/predict.py",
+    "sha256": "d4bad741434af0fd61534a6dafd646e6042a28f5d937473b7fc724fbd546ac06",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "RESCNN_4.12/SpectralReconstructionLoss.py",
+    "archive_path": "historical/single_head_shape_loss/SpectralReconstructionLoss.py",
+    "sha256": "5126f72243ada26dda00006c7c4e558655c221f78f408ae16dd5214bdce15fe3",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "RESCNN_4.12/train.py",
+    "archive_path": "historical/single_head_shape_loss/train.py",
+    "sha256": "f7f6ac456de63b974aa4a0f7e0e95280c8ff131056a66678228d75e550477917",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "RESCNN_4.12/WeightedMSEloss.py",
+    "archive_path": "historical/single_head_shape_loss/WeightedMSEloss.py",
+    "sha256": "291db88ff8d6070e37c6da0ceb69a0e66e2ef250cfd5c8d6c40c4bd97a66785d",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
   }
 ]
