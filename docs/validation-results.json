@@ -1,0 +1,57 @@
+[
+  {
+    "ref": "stage-01-cnn",
+    "passed": true,
+    "source_hashes_verified": 7
+  },
+  {
+    "ref": "feature/unet",
+    "passed": true,
+    "source_hashes_verified": 8
+  },
+  {
+    "ref": "stage-02-res",
+    "passed": true,
+    "source_hashes_verified": 14
+  },
+  {
+    "ref": "stage-03-physics",
+    "passed": true,
+    "source_hashes_verified": 20
+  },
+  {
+    "ref": "stage-04-dual24",
+    "passed": true,
+    "source_hashes_verified": 38
+  },
+  {
+    "ref": "stage-05-extraction72",
+    "passed": true,
+    "source_hashes_verified": 60
+  },
+  {
+    "ref": "master",
+    "passed": true,
+    "source_hashes_verified": 60
+  },
+  {
+    "ref": "feature/token-attention",
+    "passed": true,
+    "source_hashes_verified": 66
+  },
+  {
+    "ref": "feature/token-72",
+    "passed": true,
+    "source_hashes_verified": 67
+  },
+  {
+    "ref": "feature/multilight-72",
+    "passed": true,
+    "source_hashes_verified": 67
+  },
+  {
+    "ref": "feature/single-head-72",
+    "passed": true,
+    "source_hashes_verified": 69
+  }
+]
