@@ -1,25 +1,21 @@
 {
-  "name": "dual72",
-  "model_class": "DualHeadSpectralNet",
+  "name": "multilight72",
+  "model_class": "SpectralTokenNet",
   "model_kwargs": {
-    "n_wave": 190,
-    "token_grid": [
-      6,
-      12
-    ],
-    "base_ch": 64,
-    "n_blocks": 4,
-    "k_basis": 12,
-    "out_activation": "softplus"
+    "out_dim": 190,
+    "grid_rows": 6,
+    "grid_cols": 12,
+    "lights": 8,
+    "sample_points": 9
   },
   "feature_shape": [
     3,
-    6,
-    12,
+    8,
+    72,
     9
   ],
-  "layout": "chwk",
-  "aggregation": "mean",
+  "layout": "clnk",
+  "aggregation": "none",
   "feature_scale": 255.0,
   "gray_balance": false,
   "output_dim": 190,
@@ -215,9 +211,5 @@
     756,
     758
   ],
-  "loss": {
-    "dc": 0.1,
-    "tv": 0.02,
-    "coef": 0.0001
-  }
+  "loss": {}
 }

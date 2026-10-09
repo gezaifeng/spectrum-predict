@@ -418,5 +418,54 @@
     "sha256": "60c60925321d87ff92fb857ceee9c6593f72f05f065967ab305e833a584f39b9",
     "experiment_date": null,
     "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "RESCNN_6.11/dataset.py",
+    "archive_path": "historical/RESCNN_6.11/dataset.py",
+    "sha256": "44e9106ddf0668fd01d1c7e113be644f98b69ae095d92984131d1d058f6d170e",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "RESCNN_6.11/model.py",
+    "archive_path": "historical/RESCNN_6.11/model.py",
+    "sha256": "3e2bcd63c31bd82be01d881fcab9ef746d3f4a42897de1a2ff7befe789be2854",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "RESCNN_6.11/predict.py",
+    "archive_path": "historical/RESCNN_6.11/predict.py",
+    "sha256": "b53574dc806f29a58e3e919964137e74bafa74ad1060d073017a1ede4726bbc1",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "RESCNN_6.11/SpectralReconstructionLoss.py",
+    "archive_path": "historical/RESCNN_6.11/SpectralReconstructionLoss.py",
+    "sha256": "ca6f349a140d606061fef7480194cbd6f8fb01071f3e2eef8514c967a06dd607",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "RESCNN_6.11/train.py",
+    "archive_path": "historical/RESCNN_6.11/train.py",
+    "sha256": "c876329e6b64b1e5a126685d86d18e107a893625d5211a07577bbd42f06d2921",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "RESCNN_6.11/train_multi_block_ablation.py",
+    "archive_path": "historical/RESCNN_6.11/train_multi_block_ablation.py",
+    "sha256": "33cfba6957c59219ccadc6e61bfe8a95169a70e3ea44c364ee0357ed25838463",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "RESCNN_6.11/WeightedMSEloss.py",
+    "archive_path": "historical/RESCNN_6.11/WeightedMSEloss.py",
+    "sha256": "73e04f088c94a4d6c62f99f860e4875f80df78f3849412f79a57e650c8ca50f9",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
   }
 ]

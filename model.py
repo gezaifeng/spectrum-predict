@@ -1,108 +1,189 @@
 # -*- coding: utf-8 -*-
-import math
-from typing import Tuple
+"""
+model.py
+适配多光源 token 输入：
+  Dataset 输出：x = (B, 3, L*N, K)   L=8, N=72, K=9
+  也兼容：      x = (B, 3, L, N, K)
+
+仍然使用：
+- 采样点共享 MLP + K维聚合（对采样顺序不敏感）
+- Transformer encoder 建模 token 关系
+- attention pooling 输出 190 光谱
+"""
+
+from __future__ import annotations
+from typing import Optional
+
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
-def make_dct_basis(n_wave: int, k: int) -> torch.Tensor:
-    B = torch.zeros(n_wave, k)
-    for i in range(n_wave):
-        for j in range(k):
-            alpha = (1.0 / n_wave) ** 0.5 if j == 0 else (2.0 / n_wave) ** 0.5
-            B[i, j] = alpha * math.cos(math.pi * (i + 0.5) * j / n_wave)
-    return B
 
-class ConvBNAct(nn.Module):
-    def __init__(self, in_ch, out_ch, k=3, s=1, p=None, act=True):
+class MLP(nn.Module):
+    def __init__(self, in_dim: int, hidden_dim: int, out_dim: int, dropout: float = 0.0):
         super().__init__()
-        if p is None: p = k // 2
-        self.conv = nn.Conv2d(in_ch, out_ch, k, s, p, bias=False)
-        self.bn   = nn.BatchNorm2d(out_ch)
-        self.act  = nn.SiLU(inplace=True) if act else nn.Identity()
-    def forward(self, x): return self.act(self.bn(self.conv(x)))
+        self.net = nn.Sequential(
+            nn.Linear(in_dim, hidden_dim),
+            nn.SiLU(inplace=True),
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim, out_dim),
+        )
 
-class ResBlock(nn.Module):
-    def __init__(self, ch):
-        super().__init__()
-        self.conv1 = ConvBNAct(ch, ch, 3, 1)
-        self.conv2 = ConvBNAct(ch, ch, 3, 1, act=False)
-        self.act   = nn.SiLU(inplace=True)
     def forward(self, x):
-        y = self.conv2(self.conv1(x))
-        return self.act(x + y)
+        return self.net(x)
 
-class DualHeadSpectralNet(nn.Module):
-    """
-    输入:  x ∈ R^{B×3×4×6}（来自 dataset.py 的稳健聚合输出）
-    输出:  spec ∈ R^{B×76}，coef ∈ R^{B×K}
-    结构:  spec = (B_dct @ coef) + residual(λ)
-           - 主干: Stem + 多层 ResBlock（保留空间结构）
-           - 逐波长软注意: 为每个 λ 从 4×6 token 自适应汇聚
-           - Head1: 低维基系数（Softplus ≥ 0）
-           - Head2: 逐波长残差（对角抽取）
-    """
+
+class SpectralTokenNet(nn.Module):
     def __init__(
         self,
-        n_wave: int = 76,
-        token_grid: Tuple[int, int] = (4, 6),
-        base_ch: int = 64,
-        n_blocks: int = 4,
-        k_basis: int = 12,
-        out_activation: str = "softplus",
+        out_dim: int = 190,
+        grid_rows: int = 6,
+        grid_cols: int = 12,
+        lights: int = 8,
+        sample_points: int = 9,
+        embed_dim: int = 96,
+        depth: int = 3,
+        num_heads: int = 4,
+        mlp_ratio: float = 4.0,
+        dropout: float = 0.10,
+        out_activation: str = "linear",
     ):
         super().__init__()
-        self.n_wave = n_wave
-        self.k_basis = k_basis
+        self.out_dim = int(out_dim)
+        self.grid_rows = int(grid_rows)
+        self.grid_cols = int(grid_cols)
+        self.lights = int(lights)
+        self.sample_points = int(sample_points)
+        self.embed_dim = int(embed_dim)
 
-        self.stem   = nn.Sequential(ConvBNAct(3, base_ch, 3, 1),
-                                    ConvBNAct(base_ch, base_ch, 3, 1))
-        self.blocks = nn.Sequential(*[ResBlock(base_ch) for _ in range(n_blocks)])
-        self.proj   = nn.Conv2d(base_ch, base_ch, 1, bias=False)
+        if embed_dim % num_heads != 0:
+            raise ValueError(f"embed_dim={embed_dim} must be divisible by num_heads={num_heads}")
 
-        Ht, Wt = token_grid
-        self.keep_grid = nn.AdaptiveAvgPool2d((Ht, Wt))
-        Nt = Ht * Wt
+        # 点级编码：3 -> D
+        self.sample_encoder = MLP(3, embed_dim, embed_dim, dropout=dropout)
 
-        # per-λ token attention
-        self.attn_weight = nn.Parameter(torch.zeros(n_wave, Nt))
-        nn.init.xavier_uniform_(self.attn_weight)
+        # 统计项：mean/std -> D
+        self.stats_encoder = MLP(6, embed_dim, embed_dim, dropout=dropout)
 
-        # heads
-        self.head_coef = nn.Linear(base_ch, k_basis)   # ≥0
-        self.head_res  = nn.Linear(base_ch, n_wave)    # per-λ
+        # 位置编码：row/col/light -> D
+        self.pos_encoder = MLP(3, embed_dim, embed_dim, dropout=0.0)
 
-        # fixed DCT basis
-        B = make_dct_basis(n_wave, k_basis)  # [76, K]
-        self.register_buffer("basis", B, persistent=True)
+        enc_layer = nn.TransformerEncoderLayer(
+            d_model=embed_dim,
+            nhead=num_heads,
+            dim_feedforward=int(embed_dim * mlp_ratio),
+            dropout=dropout,
+            activation="gelu",
+            batch_first=True,
+            norm_first=True,
+        )
+        self.encoder = nn.TransformerEncoder(enc_layer, num_layers=depth, enable_nested_tensor=False)
+        self.norm = nn.LayerNorm(embed_dim)
 
-        oa = out_activation.lower()
-        self.out_act = nn.Softplus() if oa == "softplus" else (nn.ReLU() if oa == "relu" else nn.Identity())
+        self.pool_score = nn.Linear(embed_dim, 1)
+        self.head = nn.Sequential(
+            nn.LayerNorm(embed_dim),
+            nn.Linear(embed_dim, embed_dim * 2),
+            nn.SiLU(inplace=True),
+            nn.Dropout(dropout),
+            nn.Linear(embed_dim * 2, out_dim),
+        )
 
-    def _attn_pool(self, tokens: torch.Tensor):
-        # tokens: [B,C,Ht,Wt] -> [B,C,Nt]
-        Bsz, Cc, Ht, Wt = tokens.shape
-        T = tokens.view(Bsz, Cc, Ht*Wt)               # [B,C,Nt]
-        A = self.attn_weight.softmax(dim=-1)          # [L,Nt]
-        f_lambda = torch.matmul(T, A.t())             # [B,C,L]
-        f_global = T.mean(dim=-1)                     # [B,C]
-        return f_global, f_lambda
+        oa = str(out_activation).lower()
+        if oa == "linear":
+            self.out_act = nn.Identity()
+        elif oa == "relu":
+            self.out_act = nn.ReLU(inplace=True)
+        elif oa == "softplus":
+            self.out_act = nn.Softplus(beta=1.0, threshold=20.0)
+        else:
+            raise ValueError("out_activation must be 'linear' | 'relu' | 'softplus'")
 
-    def forward(self, x: torch.Tensor):
-        x = self.proj(self.blocks(self.stem(x)))
-        tokens = self.keep_grid(x)
-        f_global, f_lambda = self._attn_pool(tokens)     # [B,C], [B,C,L]
+    def _to_samples_bnk3(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        统一为 (B, T, K, 3)
+        支持：
+          (B,3,T,K)
+          (B,3,L,N,K)
+          (B,T,K,3)
+        """
+        if x.dim() == 5:
+            # (B,3,L,N,K) -> (B,3,T,K)
+            if x.size(1) != 3:
+                raise ValueError(f"5D input must be (B,3,L,N,K), got {tuple(x.shape)}")
+            b, ch, L, N, K = x.shape
+            x = x.reshape(b, ch, L * N, K)
+            return x.permute(0, 2, 3, 1).contiguous()  # (B,T,K,3)
 
-        # head1: nonnegative low-dim coefficients
-        coef = F.softplus(self.head_coef(f_global))      # [B,K]
-        spec_base = torch.matmul(coef, self.basis.t())   # [B,L]
+        if x.dim() == 4:
+            if x.size(1) == 3:
+                # (B,3,T,K)
+                return x.permute(0, 2, 3, 1).contiguous()
+            if x.size(-1) == 3:
+                # (B,T,K,3)
+                return x.contiguous()
+            raise ValueError(f"4D input must be (B,3,T,K) or (B,T,K,3), got {tuple(x.shape)}")
 
-        # head2: per-λ residual (diagonal take)
-        Bsz, Cc, L = f_lambda.shape
-        res_in  = f_lambda.permute(0,2,1).contiguous().view(Bsz*L, Cc)  # [B*L,C]
-        res_all = self.head_res(res_in).view(Bsz, L, L)                 # [B,L,L]
-        idx = torch.arange(L, device=x.device)
-        res = res_all[:, idx, idx]                                      # [B,L]
+        raise ValueError(f"Unsupported input shape: {tuple(x.shape)}")
 
-        spec = self.out_act(spec_base + res)                            # [B,L]
-        return spec, coef
+    def _pos_embedding(self, T: int, device) -> torch.Tensor:
+        """
+        T = L*Ntokens
+        位置：row/col/light
+        默认 token 排列顺序为：
+          t = light * N + block
+        """
+        N = self.grid_rows * self.grid_cols
+        L = self.lights
+        if T != L * N:
+            # 允许你未来做 token 子集，但这里先给出明确报错，避免训练/预测形状不一致
+            raise ValueError(f"token count mismatch: expected T={L*N}, got T={T}")
+
+        idx = torch.arange(T, device=device, dtype=torch.long)
+        light = torch.div(idx, N, rounding_mode="floor").float()
+        block = idx % N
+        row = torch.div(block, self.grid_cols, rounding_mode="floor").float()
+        col = (block % self.grid_cols).float()
+
+        r_den = max(self.grid_rows - 1, 1)
+        c_den = max(self.grid_cols - 1, 1)
+        l_den = max(self.lights - 1, 1)
+
+        pos = torch.stack([row / r_den, col / c_den, light / l_den], dim=-1)  # (T,3)
+        return self.pos_encoder(pos).unsqueeze(0)  # (1,T,D)
+
+    def forward(self, x: torch.Tensor, return_dict: bool = False):
+        samples = self._to_samples_bnk3(x).float()  # (B,T,K,3)
+        b, T, K, ch = samples.shape
+        if ch != 3:
+            raise ValueError(f"last channel must be 3, got {ch}")
+        if K != self.sample_points:
+            raise ValueError(f"sample_points mismatch: model K={self.sample_points}, input K={K}")
+
+        # 点级编码
+        point_feat = self.sample_encoder(samples.reshape(b * T * K, 3)).reshape(b, T, K, self.embed_dim)
+        feat_mean = point_feat.mean(dim=2)
+        feat_max = point_feat.max(dim=2).values
+
+        rgb_mean = samples.mean(dim=2)
+        rgb_std = samples.std(dim=2, unbiased=False)
+        stats = torch.cat([rgb_mean, rgb_std], dim=-1)
+        feat_stats = self.stats_encoder(stats)
+
+        tokens = feat_mean + 0.5 * feat_max + feat_stats
+        tokens = tokens + self._pos_embedding(T, samples.device)
+
+        tokens = self.encoder(tokens)
+        tokens = self.norm(tokens)
+
+        score = self.pool_score(tokens).squeeze(-1)
+        weight = torch.softmax(score, dim=1).unsqueeze(-1)
+        pooled = (tokens * weight).sum(dim=1)
+
+        out = self.out_act(self.head(pooled))
+        if return_dict:
+            return {"spectrum": out, "token_attention": weight.squeeze(-1)}
+        return out
+
+
+# 兼容旧 import
+ResCNN = SpectralTokenNet
