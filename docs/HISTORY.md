@@ -10,6 +10,7 @@
 | --- | --- | --- |
 | stage-01-cnn | feat: recover the CNN spectrum baseline | 找回CNN+Transformer基线；并非纯CNN首次版本。 |
 | stage-02-res | feat: adopt sampled residual regression | 保留采样序列平均的早期Res模型。 |
+| stage-03-physics | feat: add weighted DC and TV training | 稳健采样、灰平衡、单头残差与峰值/DC/TV训练。 |
 
 ## 关键事实与边界
 

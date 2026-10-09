@@ -1,7 +1,9 @@
 {
-  "name": "res_sampled24",
-  "model_class": "ResCNN",
-  "model_kwargs": {},
+  "name": "single24_weighted",
+  "model_class": "SingleHeadSpectralNet",
+  "model_kwargs": {
+    "out_dim": 76
+  },
   "feature_shape": [
     4,
     6,
@@ -9,9 +11,9 @@
     3
   ],
   "layout": "hwkc",
-  "aggregation": "sequence",
+  "aggregation": "trimmed_mean",
   "feature_scale": 255.0,
-  "gray_balance": false,
+  "gray_balance": true,
   "output_dim": 76,
   "wavelengths_nm": [
     380,
@@ -91,5 +93,9 @@
     750,
     755
   ],
-  "loss": {}
+  "loss": {
+    "dc": 0.1,
+    "tv": 0.02,
+    "peak_alpha": 3.0
+  }
 }
