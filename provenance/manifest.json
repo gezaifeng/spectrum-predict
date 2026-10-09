@@ -1,0 +1,51 @@
+[
+  {
+    "recovered_from": "CNN spectrum predict/check.py",
+    "archive_path": "historical/01_cnn/check.py",
+    "sha256": "0044a4bb36e554aff979b87f2139be3150f62324f74a96a3df24293e925e4680",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "CNN spectrum predict/dataset.py",
+    "archive_path": "historical/01_cnn/dataset.py",
+    "sha256": "bcde862e3e8a8b8ab71aaf31a859614e5a771a87499b67481ceab887584ff53f",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "CNN spectrum predict/model.py",
+    "archive_path": "historical/01_cnn/model.py",
+    "sha256": "73116277008a980d97be5695e355cecd8b761a3e288e4a861e20848dfeeaf401",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "CNN spectrum predict/predict.py",
+    "archive_path": "historical/01_cnn/predict.py",
+    "sha256": "fe2db844d74ca2a08e698554c9019e3ce18a876387f4108cf70d1d3c8210f809",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "CNN spectrum predict/rename_files.py",
+    "archive_path": "historical/01_cnn/rename_files.py",
+    "sha256": "cff54e714bba5d8b722cb8ca93b00be5fb085f4779ff9d4c384dcd9b78e19159",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "CNN spectrum predict/train.py",
+    "archive_path": "historical/01_cnn/train.py",
+    "sha256": "1fcf53962b0cc21ef32906f02193ce199aa2c5b35c27047d39eac1f734acac59",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  },
+  {
+    "recovered_from": "CNN spectrum predict/WeightedMSEloss.py",
+    "archive_path": "historical/01_cnn/WeightedMSEloss.py",
+    "sha256": "291db88ff8d6070e37c6da0ceb69a0e66e2ef250cfd5c8d6c40c4bd97a66785d",
+    "experiment_date": null,
+    "status": "recovered_exact_source"
+  }
+]

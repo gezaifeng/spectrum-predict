@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+data/
+runs/
+*.pt
+*.pth
+*.ckpt
+*.npy
+*.npz
+.env
+.env.*
+local_history/
