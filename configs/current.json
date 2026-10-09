@@ -1,8 +1,16 @@
 {
-  "name": "single24_weighted",
-  "model_class": "SingleHeadSpectralNet",
+  "name": "dual24",
+  "model_class": "DualHeadSpectralNet",
   "model_kwargs": {
-    "out_dim": 76
+    "n_wave": 76,
+    "token_grid": [
+      4,
+      6
+    ],
+    "base_ch": 64,
+    "n_blocks": 4,
+    "k_basis": 12,
+    "out_activation": "softplus"
   },
   "feature_shape": [
     4,
@@ -96,6 +104,6 @@
   "loss": {
     "dc": 0.1,
     "tv": 0.02,
-    "peak_alpha": 3.0
+    "coef": 0.0001
   }
 }

@@ -1,154 +1,108 @@
 # -*- coding: utf-8 -*-
-# Single-head spectrum predictor baseline
-# Author: YourName
-# ---------------------------------------
-# 用途：直接从 RGB 网格 (B,3,H,W) 回归光谱向量 (B,D)
-# 特点：轻量、稳定、易于与现有训练脚本对接做消融
-
+import math
+from typing import Tuple
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+def make_dct_basis(n_wave: int, k: int) -> torch.Tensor:
+    B = torch.zeros(n_wave, k)
+    for i in range(n_wave):
+        for j in range(k):
+            alpha = (1.0 / n_wave) ** 0.5 if j == 0 else (2.0 / n_wave) ** 0.5
+            B[i, j] = alpha * math.cos(math.pi * (i + 0.5) * j / n_wave)
+    return B
 
-# --------- 基础组件 ---------
 class ConvBNAct(nn.Module):
-    def __init__(self, c_in, c_out, k=3, s=1, p=None, act=True):
+    def __init__(self, in_ch, out_ch, k=3, s=1, p=None, act=True):
         super().__init__()
-        if p is None:
-            p = k // 2
-        self.conv = nn.Conv2d(c_in, c_out, k, s, p, bias=False)
-        self.bn   = nn.BatchNorm2d(c_out)
+        if p is None: p = k // 2
+        self.conv = nn.Conv2d(in_ch, out_ch, k, s, p, bias=False)
+        self.bn   = nn.BatchNorm2d(out_ch)
         self.act  = nn.SiLU(inplace=True) if act else nn.Identity()
+    def forward(self, x): return self.act(self.bn(self.conv(x)))
 
-    def forward(self, x):
-        return self.act(self.bn(self.conv(x)))
-
-
-class ResidualBlock(nn.Module):
-    def __init__(self, c, hidden_scale=2, drop=0.0):
+class ResBlock(nn.Module):
+    def __init__(self, ch):
         super().__init__()
-        h = int(c * hidden_scale)
-        self.conv1 = ConvBNAct(c, h, k=3, s=1)
-        self.drop1 = nn.Dropout2d(drop) if drop > 0 else nn.Identity()
-        self.conv2 = ConvBNAct(h, c, k=3, s=1, act=False)
+        self.conv1 = ConvBNAct(ch, ch, 3, 1)
+        self.conv2 = ConvBNAct(ch, ch, 3, 1, act=False)
         self.act   = nn.SiLU(inplace=True)
-
     def forward(self, x):
-        out = self.drop1(self.conv1(x))
-        out = self.conv2(out)
-        out = self.act(out + x)
-        return out
+        y = self.conv2(self.conv1(x))
+        return self.act(x + y)
 
-
-# --------- 单头光谱预测器 ---------
-class SingleHeadSpectralNet(nn.Module):
+class DualHeadSpectralNet(nn.Module):
     """
-    直接回归光谱向量的单头基线模型。
-    输入:  x ∈ R^{B×3×H×W}（色卡RGB网格）
-    输出:  ŝ ∈ R^{B×D}（线性 / ReLU / Softplus 可选）
+    输入:  x ∈ R^{B×3×4×6}（来自 dataset.py 的稳健聚合输出）
+    输出:  spec ∈ R^{B×76}，coef ∈ R^{B×K}
+    结构:  spec = (B_dct @ coef) + residual(λ)
+           - 主干: Stem + 多层 ResBlock（保留空间结构）
+           - 逐波长软注意: 为每个 λ 从 4×6 token 自适应汇聚
+           - Head1: 低维基系数（Softplus ≥ 0）
+           - Head2: 逐波长残差（对角抽取）
     """
     def __init__(
         self,
-        out_dim: int = 76,          # D：光谱维度
-        width: int = 64,            # 主干通道宽度
-        depth: int = 4,             # 残差块数量
-        drop: float = 0.0,          # 残差块内dropout
-        out_activation: str = "linear",  # "linear" | "relu" | "softplus"
-        mlp_hidden: int = 256,      # MLP隐藏维度
-        global_pool: str = "avg",   # "avg" | "max" | "gem"
-        gem_p: float = 3.0          # GeM pooling 的 p
+        n_wave: int = 76,
+        token_grid: Tuple[int, int] = (4, 6),
+        base_ch: int = 64,
+        n_blocks: int = 4,
+        k_basis: int = 12,
+        out_activation: str = "softplus",
     ):
         super().__init__()
-        self.out_dim = out_dim
-        self.global_pool = global_pool.lower()
-        self.gem_p = nn.Parameter(torch.tensor(gem_p), requires_grad=True) if self.global_pool == "gem" else None
+        self.n_wave = n_wave
+        self.k_basis = k_basis
 
-        # Stem
-        self.stem = nn.Sequential(
-            ConvBNAct(3, width, k=3, s=1),
-            ConvBNAct(width, width, k=3, s=1),
-        )
+        self.stem   = nn.Sequential(ConvBNAct(3, base_ch, 3, 1),
+                                    ConvBNAct(base_ch, base_ch, 3, 1))
+        self.blocks = nn.Sequential(*[ResBlock(base_ch) for _ in range(n_blocks)])
+        self.proj   = nn.Conv2d(base_ch, base_ch, 1, bias=False)
 
-        # Residual trunk
-        blocks = []
-        for _ in range(depth):
-            blocks.append(ResidualBlock(width, hidden_scale=2, drop=drop))
-        self.trunk = nn.Sequential(*blocks)
+        Ht, Wt = token_grid
+        self.keep_grid = nn.AdaptiveAvgPool2d((Ht, Wt))
+        Nt = Ht * Wt
 
-        # Head: GAP/GeM -> MLP -> out_dim
-        self.head_pre = nn.Sequential(
-            nn.Linear(width, mlp_hidden),
-            nn.SiLU(inplace=True),
-            nn.Dropout(p=0.1 if drop > 0 else 0.0),
-            nn.Linear(mlp_hidden, out_dim)
-        )
+        # per-λ token attention
+        self.attn_weight = nn.Parameter(torch.zeros(n_wave, Nt))
+        nn.init.xavier_uniform_(self.attn_weight)
 
-        if out_activation.lower() == "linear":
-            self.out_act = nn.Identity()
-        elif out_activation.lower() == "relu":
-            self.out_act = nn.ReLU(inplace=True)
-        elif out_activation.lower() == "softplus":
-            # Softplus 保证非负（适合在吸光度或强度域回归时做对比）
-            self.out_act = nn.Softplus(beta=1.0, threshold=20.0)
-        else:
-            raise ValueError("out_activation must be in ['linear','relu','softplus']")
+        # heads
+        self.head_coef = nn.Linear(base_ch, k_basis)   # ≥0
+        self.head_res  = nn.Linear(base_ch, n_wave)    # per-λ
 
-    def _pool(self, feat: torch.Tensor) -> torch.Tensor:
-        # feat: (B, C, H, W) -> (B, C)
-        if self.global_pool == "avg":
-            return F.adaptive_avg_pool2d(feat, 1).squeeze(-1).squeeze(-1)
-        elif self.global_pool == "max":
-            return F.adaptive_max_pool2d(feat, 1).squeeze(-1).squeeze(-1)
-        elif self.global_pool == "gem":
-            # Generalized Mean Pooling (learnable p)
-            x = torch.clamp(feat, min=1e-6)
-            p = torch.clamp(self.gem_p, min=1.0, max=6.0)
-            x = torch.pow(x, p.unsqueeze(0).unsqueeze(0).unsqueeze(0))
-            x = F.adaptive_avg_pool2d(x, 1)
-            x = torch.pow(x, 1.0 / p.unsqueeze(0).unsqueeze(0).unsqueeze(0))
-            return x.squeeze(-1).squeeze(-1)
-        else:
-            raise ValueError("global_pool must be in ['avg','max','gem']")
+        # fixed DCT basis
+        B = make_dct_basis(n_wave, k_basis)  # [76, K]
+        self.register_buffer("basis", B, persistent=True)
 
-    def forward(self, x: torch.Tensor, return_dict: bool = False):
-        feat = self.stem(x)
-        feat = self.trunk(feat)
-        g    = self._pool(feat)
-        out  = self.head_pre(g)
-        out  = self.out_act(out)
-        # 兼容旧接口：如果传了 return_dict=True，就以字典形式返回
-        if return_dict:
-            return {"spectrum": out}
-        return out
+        oa = out_activation.lower()
+        self.out_act = nn.Softplus() if oa == "softplus" else (nn.ReLU() if oa == "relu" else nn.Identity())
 
+    def _attn_pool(self, tokens: torch.Tensor):
+        # tokens: [B,C,Ht,Wt] -> [B,C,Nt]
+        Bsz, Cc, Ht, Wt = tokens.shape
+        T = tokens.view(Bsz, Cc, Ht*Wt)               # [B,C,Nt]
+        A = self.attn_weight.softmax(dim=-1)          # [L,Nt]
+        f_lambda = torch.matmul(T, A.t())             # [B,C,L]
+        f_global = T.mean(dim=-1)                     # [B,C]
+        return f_global, f_lambda
 
-# --------- 方便与现有脚本对接的构建函数（可选）---------
-def build_single_head_model(cfg=None):
-    """
-    可在 train.py 里统一调用：
-        from model_single_head import build_single_head_model
-        model = build_single_head_model(...)
-    """
-    if cfg is None:
-        return SingleHeadSpectralNet()
-    # 兼容常见配置字典
-    return SingleHeadSpectralNet(
-        out_dim       = getattr(cfg, "out_dim", 76) if not isinstance(cfg, dict) else cfg.get("out_dim", 76),
-        width         = getattr(cfg, "width", 64)    if not isinstance(cfg, dict) else cfg.get("width", 64),
-        depth         = getattr(cfg, "depth", 4)     if not isinstance(cfg, dict) else cfg.get("depth", 4),
-        drop          = getattr(cfg, "drop", 0.0)    if not isinstance(cfg, dict) else cfg.get("drop", 0.0),
-        out_activation= getattr(cfg, "out_activation", "linear") if not isinstance(cfg, dict) else cfg.get("out_activation", "linear"),
-        mlp_hidden    = getattr(cfg, "mlp_hidden", 256) if not isinstance(cfg, dict) else cfg.get("mlp_hidden", 256),
-        global_pool   = getattr(cfg, "global_pool", "avg") if not isinstance(cfg, dict) else cfg.get("global_pool", "avg"),
-        gem_p         = getattr(cfg, "gem_p", 3.0)   if not isinstance(cfg, dict) else cfg.get("gem_p", 3.0),
-    )
+    def forward(self, x: torch.Tensor):
+        x = self.proj(self.blocks(self.stem(x)))
+        tokens = self.keep_grid(x)
+        f_global, f_lambda = self._attn_pool(tokens)     # [B,C], [B,C,L]
 
+        # head1: nonnegative low-dim coefficients
+        coef = F.softplus(self.head_coef(f_global))      # [B,K]
+        spec_base = torch.matmul(coef, self.basis.t())   # [B,L]
 
-# --------- 简短使用示例（注释掉即可）---------
-if __name__ == "__main__":
-    B, C, H, W = 2, 3, 4, 6     # 例如 4×6 色卡网格
-    D = 76
-    x = torch.randn(B, C, H, W)
-    model = SingleHeadSpectralNet(out_dim=D, width=64, depth=4, out_activation="linear")
-    y = model(x)
-    print(y.shape)  # -> torch.Size([2, 76])
+        # head2: per-λ residual (diagonal take)
+        Bsz, Cc, L = f_lambda.shape
+        res_in  = f_lambda.permute(0,2,1).contiguous().view(Bsz*L, Cc)  # [B*L,C]
+        res_all = self.head_res(res_in).view(Bsz, L, L)                 # [B,L,L]
+        idx = torch.arange(L, device=x.device)
+        res = res_all[:, idx, idx]                                      # [B,L]
+
+        spec = self.out_act(spec_base + res)                            # [B,L]
+        return spec, coef
