@@ -1,6 +1,6 @@
 # 验证报告
 
-2026-10-09，Windows，Python 3.11，PyTorch 2.7.0 CPU。没有GPU或真实实验数据验证。
+2026-10-09，Windows，Python 3.12.7，PyTorch 2.7.0 CPU。没有GPU或真实实验数据验证。
 
 11个阶段／分支全部通过：
 

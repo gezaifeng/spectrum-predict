@@ -7,7 +7,7 @@
 
 ## 安装与快速复现
 
-Python 3.11；整理时在Windows、PyTorch 2.7.0 CPU上验证。
+Python 3.12；整理时在Windows、Python 3.12.7、PyTorch 2.7.0 CPU上验证。
 
 ```bash
 python -m venv .venv
